@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard de Mensajes</title>
+  <style>
+    body { font-family: sans-serif; margin: 40px; background: #f4f4f4; }
+    h1 { color: #0f2d7a; }
+    input { padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 10px; background: #0f2d7a; color: white; border: none; border-radius: 5px; margin-left: 10px; }
+    .message { margin-top: 20px; padding: 10px; background: white; border-left: 5px solid #0f2d7a; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .timestamp { font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Buscar Mensajes por Correo</h1>
+  <input type="email" id="emailInput" placeholder="correo@ejemplo.com" />
+  <button onclick="buscarMensajes()">Buscar</button>
+  <div id="resultados"></div>
+  <script>
+    async function buscarMensajes() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email) {
+        alert("Ingresa un correo válido.");
+        return;
+      }
+      try {
+        const res = await fetch(`http://localhost:3000/messages/${email}`);
+        const data = await res.json();
+        const container = document.getElementById('resultados');
+        container.innerHTML = "";
+        if (res.status !== 200) {
+          container.innerHTML = "<p>No se encontraron mensajes para este correo.</p>";
+          return;
+        }
+        data.forEach(msg => {
+          const div = document.createElement('div');
+          div.classList.add('message');
+          div.innerHTML = `<strong>${msg.name}</strong>: ${msg.message}<br><span class="timestamp">${new Date(msg.timestamp).toLocaleString()}</span>`;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        alert("❌ Error al buscar mensajes");
+      }
+    }
+  </script>
+</body>
+</html>
